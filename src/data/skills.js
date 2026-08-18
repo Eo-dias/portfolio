@@ -1,0 +1,101 @@
+export const skills = [
+  {
+    id: 'html',
+    name: 'HTML5',
+    level: 'Intermediário',
+    category: 'frontend',
+    icon: 'html5',
+    color: '#E34F26',
+    description: 'Semântica, acessibilidade, SEO, formulários, multimídia',
+  },
+  {
+    id: 'css',
+    name: 'CSS3',
+    level: 'Intermediário',
+    category: 'frontend',
+    icon: 'css3',
+    color: '#1572B6',
+    description: 'Flexbox, Grid, animações, variáveis CSS, design responsivo, metodologias BEM',
+  },
+  {
+    id: 'javascript',
+    name: 'JavaScript',
+    level: 'Iniciante',
+    category: 'frontend',
+    icon: 'javascript',
+    color: '#F7DF1E',
+    description: 'ES6+, DOM, async/await, fetch API, manipulação de eventos',
+  },
+  {
+    id: 'php',
+    name: 'PHP',
+    level: 'Iniciante',
+    category: 'backend',
+    icon: 'php',
+    color: '#777BB4',
+    description: 'Sintaxe básica, POO, integração com banco de dados, sessões',
+  },
+  {
+    id: 'laravel',
+    name: 'Laravel',
+    level: 'Iniciante',
+    category: 'backend',
+    icon: 'laravel',
+    color: '#FF2D20',
+    description: 'Roteamento, Eloquent ORM, migrations, middleware, Blade templates',
+  },
+  {
+    id: 'mysql',
+    name: 'MySQL',
+    level: 'Iniciante',
+    category: 'backend',
+    icon: 'database',
+    color: '#4479A1',
+    description: 'Queries, joins, índices, modelagem relacional, stored procedures',
+  },
+  {
+    id: 'python',
+    name: 'Python',
+    level: 'Iniciante',
+    category: 'backend',
+    icon: 'python',
+    color: '#3776AB',
+    description: 'Sintaxe, estruturas de dados, POO, bibliotecas padrão, scripts de automação',
+  },
+  {
+    id: 'git',
+    name: 'Git',
+    level: 'Iniciante',
+    category: 'tools',
+    icon: 'git',
+    color: '#F05032',
+    description: 'Controle de versão, branching, merge, rebase, GitHub/GitLab, conventional commits',
+  },
+];
+
+export const skillCategories = [
+  { id: 'frontend', name: 'Frontend', icon: 'monitor' },
+  { id: 'backend', name: 'Backend', icon: 'server' },
+  { id: 'tools', name: 'Ferramentas', icon: 'wrench' },
+];
+
+export const levelStyles = {
+  'Intermediário': {
+    bg: 'bg-accent/20',
+    text: 'text-accent',
+    border: 'border-accent/30',
+    width: '66%',
+  },
+  'Iniciante': {
+    bg: 'bg-blue-500/20',
+    text: 'text-blue-400',
+    border: 'border-blue-500/30',
+    width: '33%',
+  },
+  'Avançado': {
+    bg: 'bg-emerald-500/20',
+    text: 'text-emerald-400',
+    border: 'border-emerald-500/30',
+    width: '100%',
+  },
+};
