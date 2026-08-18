@@ -46,14 +46,21 @@ const handleSubmit = async (e) => {
       formData.append('_subject', `[Portfolio] ${formState.subject}`);
       formData.append('_replyto', formState.email);
       formData.append('_gotcha', ''); // Honeypot anti-spam
+      // AJAX mode - no redirect
+      formData.append('_format', 'json');
 
       const response = await fetch('https://formspree.io/f/mnpaoavw', {
         method: 'POST',
         body: formData,
+        headers: {
+          'Accept': 'application/json',
+        },
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Erro ao enviar. Tente novamente.');
+        throw new Error(data.errors?.[0]?.message || 'Erro ao enviar. Tente novamente.');
       }
 
       setStatus('success');
