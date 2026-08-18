@@ -1,16 +1,17 @@
-import { Resend } from 'resend';
+import { TransactionalEmailsApi, SendSmtpEmail } from '@getbrevo/brevo';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const apiInstance = new TransactionalEmailsApi();
+apiInstance.setApiKey('api-key', process.env.BREVO_API_KEY);
 
 export default async function handler(req, res) {
   const startTime = Date.now();
-  
+
   console.log('[Contact API] Request received:', {
     method: req.method,
     hasBody: !!req.body,
     timestamp: new Date().toISOString(),
-    envKeyExists: !!process.env.RESEND_API_KEY,
-    envKeyPrefix: process.env.RESEND_API_KEY?.substring(0, 8) || 'MISSING'
+    envKeyExists: !!process.env.BREVO_API_KEY,
+    envKeyPrefix: process.env.BREVO_API_KEY?.substring(0, 8) || 'MISSING'
   });
 
   if (req.method !== 'POST') {
@@ -34,13 +35,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Resend free tier: pode enviar para emails verificados ou usar onboarding@resend.dev (vai para o dono da conta)
-    const emailData = {
-      from: 'Portfolio <onboarding@resend.dev>',
-      to: 'matheussdias.dev@gmail.com', // Precisa estar verificado no Resend
-      replyTo: email,
+    const sendSmtpEmail = new SendSmtpEmail({
+      sender: { name: 'Portfolio', email: 'matheussdias.dev@gmail.com' },
+      to: [{ email: 'matheussdias.dev@gmail.com', name: 'Matheus Dias' }],
+      replyTo: { email, name },
       subject: `[Portfolio] ${subject}`,
-      text: `
+      textContent: `
 Nome: ${name}
 Email: ${email}
 Assunto: ${subject}
@@ -48,7 +48,7 @@ Assunto: ${subject}
 Mensagem:
 ${message}
       `.trim(),
-      html: `
+      htmlContent: `
         <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #14B8A6; border-bottom: 1px solid #334155; padding-bottom: 12px;">
             Nova mensagem do Portfolio
@@ -70,40 +70,51 @@ ${message}
       `.trim(),
     };
 
-    console.log('[Contact API] Sending email via Resend...', { to: emailData.to, from: emailData.from });
-    
-    const result = await resend.emails.send(emailData);
-    
+    console.log('[Contact API] Sending email via Brevo...', { 
+      to: sendSmtpEmail.to[0].email, 
+      from: sendSmtpEmail.sender.email 
+    });
+
+    const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+
     console.log('[Contact API] Email sent successfully:', { 
-      id: result.data?.id, 
+      messageId: result.body?.messageId,
       duration: Date.now() - startTime 
     });
 
     return res.status(200).json({ 
       success: true, 
-      messageId: result.data?.id,
+      messageId: result.body?.messageId,
       duration: Date.now() - startTime 
     });
   } catch (error) {
     console.error('[Contact API] Error details:', {
       message: error.message,
       name: error.name,
-      stack: error.stack,
-      cause: error.cause,
+      response: error.response?.body || error.response?.text,
+      status: error.response?.status,
       duration: Date.now() - startTime
     });
 
-    // Erro específico do Resend
-    if (error.message?.includes('domain') || error.message?.includes('verified') || error.message?.includes('forbidden')) {
+    const errorMessage = error.response?.body?.message || error.message;
+    
+    if (error.response?.status === 401) {
+      return res.status(401).json({ 
+        error: 'API Key inválida. Verifique BREVO_API_KEY no Vercel.',
+        details: errorMessage 
+      });
+    }
+    
+    if (error.response?.status === 400 && errorMessage?.includes('sender')) {
       return res.status(400).json({ 
-        error: 'Email de destino não verificado no Resend. Configure em resend.com/domains ou use email verificado.',
-        details: error.message 
+        error: 'Email remetente não verificado no Brevo. Configure em Senders & Domains.',
+        details: errorMessage 
       });
     }
 
     return res.status(500).json({ 
       error: 'Falha ao enviar email. Tente novamente ou me chame direto no email.',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
     });
   }
 }
