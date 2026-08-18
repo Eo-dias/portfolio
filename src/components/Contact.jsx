@@ -37,21 +37,16 @@ const handleSubmit = async (e) => {
     setStatus('submitting');
 
     try {
-      const response = await fetch('/api/contact', {
+      const response = await fetch('https://formspree.io/f/SEU_FORM_ID_AQUI', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formState),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        // Mostra erro detalhado da API
-        console.error('API Error:', data);
-        throw new Error(data.details ? `${data.error}: ${data.details}` : data.error || 'Erro ao enviar');
+        throw new Error('Erro ao enviar. Verifique o Form ID.');
       }
 
-      console.log('Email sent:', data);
       setStatus('success');
       setFormState({ name: '', email: '', subject: '', message: '' });
       setTimeout(() => setStatus('idle'), 5000);
