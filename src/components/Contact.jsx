@@ -37,14 +37,23 @@ const handleSubmit = async (e) => {
     setStatus('submitting');
 
     try {
+      const formData = new FormData();
+      formData.append('name', formState.name);
+      formData.append('email', formState.email);
+      formData.append('subject', formState.subject);
+      formData.append('message', formState.message);
+      // Formspree special fields
+      formData.append('_subject', `[Portfolio] ${formState.subject}`);
+      formData.append('_replyto', formState.email);
+      formData.append('_gotcha', ''); // Honeypot anti-spam
+
       const response = await fetch('https://formspree.io/f/mnpaoavw', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formState),
+        body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao enviar. Verifique o Form ID.');
+        throw new Error('Erro ao enviar. Tente novamente.');
       }
 
       setStatus('success');
